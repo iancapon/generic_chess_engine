@@ -1,0 +1,17 @@
+.body-class{
+    background-color: brown;
+    margin:100;
+    padding:0;
+}
+
+.main-class{
+    background-color: brown;
+    display:flex;
+    justify-content: center;
+    align-content: center;
+    height: 50vf;
+}
+
+canvas{
+    background-color: black;
+}
