@@ -10,8 +10,8 @@ const mano = new cursor(0, 0, canvas.width/8, tablero, c)
 const turno_de=document.getElementById("turno-de")
 
 const setup = function () {
-    canvas.width = 60 * 8
-    canvas.height = 60 * 8
+    canvas.width = 40 * 8
+    canvas.height = 40 * 8
     setupTablero(piezas, tablero)
     
 }
