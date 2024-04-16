@@ -11,7 +11,13 @@
     align-content: center;
     height: 50vf;
 }
-
+.text-class{
+    background-color: brown;
+    display:flex;
+    justify-content: center;
+    align-content: center;
+    height: 50vf;
+}
 canvas{
     background-color: black;
 }

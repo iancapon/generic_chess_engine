@@ -87,10 +87,12 @@ export default function validMove(px, py, x, y, piece, tablero, turn, checkcheck
                 }
             }
         }
-
-
     }
-    return [ret, valid, check]
+    let validNum=0
+    for(let i=0;i<64;i++){
+        if(valid[i]>0){ validNum++ }
+    }
+    return [ret, valid, check,validNum]
 }
 
 
@@ -117,22 +119,42 @@ function peon(px, py, x, y, tablero, turn, valid) {
     let dir = 1 - 2 * turn
     let st = 6
     if (dir > 0) { st = 1 }
-    if (inboundsCheck(px, py + dir) && tablero[px + (py + dir) * 8] == 0) {
+    if (inboundsCheck(px, py + dir) && tablero[px + (py + dir) * 8] == 0) {//avanzar 1
         inbounds(valid, px, py + dir);
-        if (inboundsCheck(px, py + dir * 2) && tablero[px + (py + dir * 2) * 8] == 0 && py == st) {
+        if (inboundsCheck(px, py + dir * 2) && tablero[px + (py + dir * 2) * 8] == 0 && py == st) {//avenzar 2
             inbounds(valid, px, py + dir * 2);
         }
     }
+    ////// COMER NORMAL
     if (inboundsCheck(px - 1, py + dir) && tablero[px - 1 + (py + dir) * 8] % 2 != turn % 2 && tablero[px - 1 + (py + dir) * 8] != 0) {
         inbounds(valid, px - 1, py + dir);
     }
     if (inboundsCheck(px + 1, py + dir) && tablero[px + 1 + (py + dir) * 8] % 2 != turn % 2 && tablero[px + 1 + (py + dir) * 8] != 0) {
         inbounds(valid, px + 1, py + dir);
     }
+    /////////////////////// COMER AL PASO
+    let enpassantflag = 0
+    
+    if (inboundsCheck(px - 1, py + dir) && tablero[px - 1 + (py) * 8] ==5+turn && tablero[px - 1 + (py + dir) * 8] == 0) {
+        inbounds(valid, px - 1, py + dir);
+        enpassantflag=1
+    }
+    if (inboundsCheck(px + 1, py + dir) && tablero[px + 1 + (py) * 8] ==5+turn && tablero[px + 1 + (py + dir) * 8] == 0) {
+        inbounds(valid, px + 1, py + dir);
+        enpassantflag=2
+    }
+    if(enpassantflag==1 && x == px - 1 && y == py+dir){
+        tablero[x + (py) * 8] =0
+    }
+    if(enpassantflag==2 && x == px +1 && y == py+dir){
+        tablero[x + (py) * 8] =0
+    }
+    ////////////////////////////
 
     if (valid[x + y * 8] > 0) {
         ret = true
     }
+    
     return ret
 }
 
@@ -191,10 +213,6 @@ function rey(px, py, x, y, tablero, turn, valid, checkcheck, mov) {
             }
         }
     }
-    ///////////////////////////////
-    if (valid[x + y * 8] > 0) {
-        ret = true
-    }
     if (rookflag = 1 && x == px - 2 && y == py) {
         tablero[0 + 8 * 7 * turn] = 0
         tablero[3 + 8 * 7 * turn] = 2 - turn
@@ -202,6 +220,10 @@ function rey(px, py, x, y, tablero, turn, valid, checkcheck, mov) {
     if (rookflag = 2 && x == px + 2 && y == py) {
         tablero[7 + 8 * 7 * turn] = 0
         tablero[5 + 8 * 7 * turn] = 2 - turn
+    }
+    ///////////////////////////////
+    if (valid[x + y * 8] > 0) {
+        ret = true
     }
     return ret
 }
