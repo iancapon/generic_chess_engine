@@ -1,10 +1,8 @@
-//import Cursor from "./cursor"
-
-export default function validMove(px, py, x, y, piece, tablero, turn, checkcheck) {
+//import {moved} from "./main.js"
+export default function validMove(px, py, x, y, piece, tablero, turn, checkcheck, mov) {
     let ret = false
     let valid = []
     for (let i = 0; i < 64; i++) { valid[i] = 0 }
-
     if (turn % 2 == piece % 2) {
 
         switch (piece) {
@@ -27,10 +25,10 @@ export default function validMove(px, py, x, y, piece, tablero, turn, checkcheck
                 ret = peon(px, py, x, y, tablero, turn, valid)
                 break;
             case 7:
-                ret = rey(px, py, x, y, tablero, turn, valid)
+                ret = rey(px, py, x, y, tablero, turn, valid, checkcheck, mov)
                 break;
             case 8:
-                ret = rey(px, py, x, y, tablero, turn, valid)
+                ret = rey(px, py, x, y, tablero, turn, valid, checkcheck, mov)
                 break;
             case 9:
                 ret = alfil(px, py, x, y, tablero, turn, valid)
@@ -63,40 +61,43 @@ export default function validMove(px, py, x, y, piece, tablero, turn, checkcheck
     if (valid[x + y * 8] == 2) {
         ret = false
     }
-    
-    if (checkcheck ) {
+
+    if (checkcheck) {
         let nextTablero = []
         for (let i = 0; i < 64; i++) {
             nextTablero[i] = tablero[i]
         }
         nextTablero[x + y * 8] = piece
         nextTablero[px + py * 8] = 0
-        if(jaque(1 - turn, nextTablero)[1]){
+        if (jaque(1 - turn, nextTablero)[1]) {
             const audio = new Audio('assets/sounds/error.mp3');
             if (audio != null && ret) { audio.play() }
             ret = false
         }
 
         for (let i = 0; i < 64; i++) {
-            if (valid[i]>0) {
+            if (valid[i] > 0) {
                 for (let j = 0; j < 64; j++) {
                     nextTablero[j] = tablero[j]
                 }
                 nextTablero[px + py * 8] = 0
-                nextTablero[i]=piece
-                if(jaque(1-turn, nextTablero)[1]){
-                    valid[i]=0
+                nextTablero[i] = piece
+                if (jaque(1 - turn, nextTablero)[1]) {
+                    valid[i] = 0
                 }
             }
         }
-        
-        
+
+
     }
     return [ret, valid, check]
 }
 
+
+
+
 function jaque(turn, tablero) {
-    let ret=false
+    let ret = false
     let valid = []
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
@@ -104,11 +105,11 @@ function jaque(turn, tablero) {
             let piece = tablero[i + j * 8]
             if (piece != 0 && validMove(i, j, i, j, piece, tablero, turn, false)[2]) {////tal pieza causa un jaque
                 valid[i + j * 8] = 1
-                ret=true
+                ret = true
             }
         }
     }
-    return [valid,ret]
+    return [valid, ret]
 }
 
 function peon(px, py, x, y, tablero, turn, valid) {
@@ -121,21 +122,21 @@ function peon(px, py, x, y, tablero, turn, valid) {
         if (inboundsCheck(px, py + dir * 2) && tablero[px + (py + dir * 2) * 8] == 0 && py == st) {
             inbounds(valid, px, py + dir * 2);
         }
-
-        if (inboundsCheck(px - 1, py + dir) && tablero[px - 1 + (py + dir) * 8] % 2 != turn % 2 && tablero[px - 1 + (py + dir) * 8] != 0) {
-            inbounds(valid, px - 1, py + dir);
-        }
-        if (inboundsCheck(px + 1, py + dir) && tablero[px + 1 + (py + dir) * 8] % 2 != turn % 2 && tablero[px + 1 + (py + dir) * 8] != 0) {
-            inbounds(valid, px + 1, py + dir);
-        }
     }
+    if (inboundsCheck(px - 1, py + dir) && tablero[px - 1 + (py + dir) * 8] % 2 != turn % 2 && tablero[px - 1 + (py + dir) * 8] != 0) {
+        inbounds(valid, px - 1, py + dir);
+    }
+    if (inboundsCheck(px + 1, py + dir) && tablero[px + 1 + (py + dir) * 8] % 2 != turn % 2 && tablero[px + 1 + (py + dir) * 8] != 0) {
+        inbounds(valid, px + 1, py + dir);
+    }
+
     if (valid[x + y * 8] > 0) {
         ret = true
     }
     return ret
 }
 
-function rey(px, py, x, y, tablero, turn, valid) {
+function rey(px, py, x, y, tablero, turn, valid, checkcheck, mov) {
     let ret = false
 
     inbounds(valid, px, py - 1);
@@ -151,9 +152,56 @@ function rey(px, py, x, y, tablero, turn, valid) {
             if (tablero[i] % 2 == turn % 2 && tablero[i] != 0) { valid[i] = 0 }
         }
     }
+    /////////////////////////////////////////////ENROQUE
+    let rookflag = 0
 
+    if (tablero[4 + 8 * 7 * turn] == 8 - turn && checkcheck) {///rey 
+        if (mov[4 + 8 * 7 * turn] == 0) {
+            if (tablero[0 + 8 * 7 * turn] == 2 - turn) {//torre izquierda
+                if (mov[0 + 8 * 7 * turn] == 0) {
+                    if (tablero[1 + 8 * 7 * turn] == 0 && tablero[2 + 8 * 7 * turn] == 0 && tablero[3 + 8 * 7 * turn] == 0) {// si está vacio
+                        let nextTablero = []
+                        for (let j = 0; j < 64; j++) {
+                            nextTablero[j] = tablero[j]
+                        }
+                        nextTablero[4 + 8 * 7 * turn] = 0
+                        nextTablero[3 + 8 * 7 * turn] = 8 - turn
+                        if (!jaque(1 - turn, nextTablero)[1] && !jaque(1 - turn, tablero)[1]) {///SI NO ESTÁ EN JAQUE NI EN EL MEDIO
+                            inbounds(valid, px - 2, py);
+                            rookflag = 1
+                        }
+                    }
+                }
+            }
+            if (tablero[7 + 8 * 7 * turn] == 2 - turn) {//torre derecha
+                if (mov[7 + 8 * 7 * turn] == 0) {
+                    if (tablero[6 + 8 * 7 * turn] == 0 && tablero[5 + 8 * 7 * turn] == 0) {// si está vacio
+                        let nextTablero = []
+                        for (let j = 0; j < 64; j++) {
+                            nextTablero[j] = tablero[j]
+                        }
+                        nextTablero[4 + 8 * 7 * turn] = 0
+                        nextTablero[5 + 8 * 7 * turn] = 8 - turn
+                        if (!jaque(1 - turn, nextTablero)[1] && !jaque(1 - turn, tablero)[1]) {///SI NO ESTÁ EN JAQUE NI EN EL MEDIO
+                            inbounds(valid, px + 2, py);
+                            rookflag = 2
+                        }
+                    }
+                }
+            }
+        }
+    }
+    ///////////////////////////////
     if (valid[x + y * 8] > 0) {
         ret = true
+    }
+    if (rookflag = 1 && x == px - 2 && y == py) {
+        tablero[0 + 8 * 7 * turn] = 0
+        tablero[3 + 8 * 7 * turn] = 2 - turn
+    }
+    if (rookflag = 2 && x == px + 2 && y == py) {
+        tablero[7 + 8 * 7 * turn] = 0
+        tablero[5 + 8 * 7 * turn] = 2 - turn
     }
     return ret
 }

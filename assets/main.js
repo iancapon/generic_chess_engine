@@ -8,33 +8,53 @@ let tablero = []
 const piezas = []
 const mano = new cursor(0, 0, canvas.width / 8, tablero, c)
 const turno_de = document.getElementById("turno-de")
+let movimientos=[]
+let prevTablero=[]
+
 
 const setup = function () {
     canvas.width = 60 * 8
     canvas.height = 60 * 8
     setupTablero(piezas, tablero)
-
+    setMovimientos();
 }
 
 
 const draw = function () {
+    updateMoveCounts()
     mano.sqrSize = canvas.width / 8
     drawBoard('white', 'pink', c, tablero, piezas)
     canvas.addEventListener('mousemove', onMouseMove)
     canvas.addEventListener('click', manejarClic)
-    mano.signal(tablero)
+    mano.signal(tablero,movimientos)
 
     if (mano.turn == 1) { turno_de.textContent = "Turno de: Blancas" }
     if (mano.turn == 0) { turno_de.textContent = "Turno de: Negras" }
     requestAnimationFrame(draw)
 }
 
+
+//////////////////////////
+function setMovimientos(){
+    for(let i=0;i<64;i++){
+        movimientos[i]=0
+        prevTablero[i]=tablero[i]
+    }
+}
+function updateMoveCounts(){
+    for(let i=0;i<64;i++){
+        if(prevTablero[i]!=tablero[i]){
+            movimientos[i]+=1
+            prevTablero[i]=tablero[i]
+        }
+    }
+}
 //////////////////////////
 let clicActivo = true;
 function manejarClic() {
     if (clicActivo) {
         clicActivo = false
-        mano.click(tablero)
+        mano.click(tablero,movimientos)
         setTimeout(() => { clicActivo = true; console.log('Clic reactivado.') }, 50);
     } //----------------------------------------------- 1000 milisegundos = 1 segundo
 }

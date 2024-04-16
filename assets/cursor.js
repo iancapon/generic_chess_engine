@@ -19,7 +19,7 @@ export default class Cursor {
     }
 
 
-    click(array) {
+    click(array,movimientos) {
         this.x = this.truex
         this.y = this.truey
         this.piece = array[this.x + this.y * 8];
@@ -31,7 +31,7 @@ export default class Cursor {
             this.prevY = this.y;
         }
         if (this.hand == 1 && this.prevPiece != this.piece
-            && validMove(this.prevX, this.prevY, this.x, this.y, this.prevPiece, array, this.turn, this.calcularJaque)[0] ) {
+            && validMove(this.prevX, this.prevY, this.x, this.y, this.prevPiece, array, this.turn, this.calcularJaque,movimientos)[0] ) {
             array[this.x + this.y * 8] = this.prevPiece;
             array[this.prevX + this.prevY * 8] = 0;
             this.hand = 0
@@ -40,25 +40,23 @@ export default class Cursor {
             if (this.turn == 2) { this.turn = 0; }
             const audio = new Audio('assets/sounds/board.mp3');
             if (audio != null ) { audio.play() }
-            //console.log("turn:" + this.turn)
         }
         if (this.hand == 1 && 
-            (this.prevPiece == this.piece || !validMove(this.prevX, this.prevY, this.x, this.y, this.prevPiece, array, this.turn, this.calcularJaque)[0])) {
+            (this.prevPiece == this.piece || !validMove(this.prevX, this.prevY, this.x, this.y, this.prevPiece, array, this.turn, this.calcularJaque,movimientos)[0])) {
             this.hand = 0
         }
         if (this.hand == 2) {
             this.hand = 1
         }
-        //console.log("hand:" + this.hand + " cc:" + this.clickCount)
     }
-    signal(tablero) {
+    signal(tablero,movimientos) {
         if (this.hand == 1) {
             this.c.beginPath();
             this.c.arc((0.5 + this.x) * this.sqrSize, (0.5 + this.y) * this.sqrSize, this.sqrSize / 2, 0, Math.PI * 2, false);
             this.c.strokeStyle = 'blue';
             this.c.stroke();
 
-            let valid = validMove(this.prevX, this.prevY, this.x, this.y, this.prevPiece, tablero, this.turn, this.calcularJaque)[1]
+            let valid = validMove(this.prevX, this.prevY, this.x, this.y, this.prevPiece, tablero, this.turn, this.calcularJaque,movimientos)[1]
             for (let i = 0; i < 8; i++) {
                 for (let j = 0; j < 8; j++) {
                     if (valid[i + j * 8] > 0) {
