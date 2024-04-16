@@ -144,16 +144,17 @@ function peon(px, py, x, y, tablero, turn, valid) {
         inbounds(valid, px + 1, py + dir);
         enpassantflag=2
     }
-    if(enpassantflag==1 && x == px - 1 && y == py+dir){
-        tablero[x + (py) * 8] =0
-    }
-    if(enpassantflag==2 && x == px +1 && y == py+dir){
-        tablero[x + (py) * 8] =0
-    }
-    ////////////////////////////
+    
 
     if (valid[x + y * 8] > 0) {
         ret = true
+        if(enpassantflag==1 && x == px - 1 && y == py+dir){
+            tablero[x + (py) * 8] =0
+        }
+        if(enpassantflag==2 && x == px +1 && y == py+dir){
+            tablero[x + (py) * 8] =0
+        }
+    ////////////////////////////
     }
     
     return ret
@@ -214,17 +215,18 @@ function rey(px, py, x, y, tablero, turn, valid, checkcheck, mov) {
             }
         }
     }
-    if (rookflag = 1 && x == px - 2 && y == py) {
-        tablero[0 + 8 * 7 * turn] = 0
-        tablero[3 + 8 * 7 * turn] = 2 - turn
-    }
-    if (rookflag = 2 && x == px + 2 && y == py) {
-        tablero[7 + 8 * 7 * turn] = 0
-        tablero[5 + 8 * 7 * turn] = 2 - turn
-    }
-    ///////////////////////////////
+    
     if (valid[x + y * 8] > 0) {
         ret = true
+        if (rookflag = 1 && x == px - 2 && y == py) {
+            tablero[0 + 8 * 7 * turn] = 0
+            tablero[3 + 8 * 7 * turn] = 2 - turn
+        }
+        if (rookflag = 2 && x == px + 2 && y == py) {
+            tablero[7 + 8 * 7 * turn] = 0
+            tablero[5 + 8 * 7 * turn] = 2 - turn
+        }
+    ///////////////////////////////
     }
     return ret
 }
