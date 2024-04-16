@@ -15,12 +15,11 @@ export default class Cursor {
         this.turn = 1
         this.clickCount = 0
         this.c = c
+        this.calcularJaque = true
     }
 
 
     click(array) {
-
-        console.log("x:" + this.x + " y:" + this.y)
         this.x = this.truex
         this.y = this.truey
         this.piece = array[this.x + this.y * 8];
@@ -31,22 +30,26 @@ export default class Cursor {
             this.prevX = this.x;
             this.prevY = this.y;
         }
-        if (this.hand == 1 && validMove(this, array, this.turn)[0] && this.prevPiece != this.piece) {
+        if (this.hand == 1 && this.prevPiece != this.piece
+            && validMove(this.prevX, this.prevY, this.x, this.y, this.prevPiece, array, this.turn, this.calcularJaque)[0] ) {
             array[this.x + this.y * 8] = this.prevPiece;
             array[this.prevX + this.prevY * 8] = 0;
             this.hand = 0
             if (this.turn == 1) { this.turn = 2; }
             if (this.turn == 0) { this.turn = 1; }
             if (this.turn == 2) { this.turn = 0; }
-            console.log("turn:" + this.turn)
+            const audio = new Audio('assets/sounds/board.mp3');
+            if (audio != null ) { audio.play() }
+            //console.log("turn:" + this.turn)
         }
-        if (this.hand == 1 && (this.prevPiece == this.piece || !validMove(this, array, this.turn)[0])) {
+        if (this.hand == 1 && 
+            (this.prevPiece == this.piece || !validMove(this.prevX, this.prevY, this.x, this.y, this.prevPiece, array, this.turn, this.calcularJaque)[0])) {
             this.hand = 0
         }
         if (this.hand == 2) {
             this.hand = 1
         }
-        console.log("hand:" + this.hand + " cc:" + this.clickCount)
+        //console.log("hand:" + this.hand + " cc:" + this.clickCount)
     }
     signal(tablero) {
         if (this.hand == 1) {
@@ -55,7 +58,7 @@ export default class Cursor {
             this.c.strokeStyle = 'blue';
             this.c.stroke();
 
-            let valid = validMove(this, tablero, this.turn)[1]
+            let valid = validMove(this.prevX, this.prevY, this.x, this.y, this.prevPiece, tablero, this.turn, this.calcularJaque)[1]
             for (let i = 0; i < 8; i++) {
                 for (let j = 0; j < 8; j++) {
                     if (valid[i + j * 8] > 0) {

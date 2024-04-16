@@ -1,5 +1,5 @@
 
-export function setupTablero(piezas,tablero) {
+export function setupTablero(piezas, tablero) {
     for (let i = 0; i < 12; i++) {
         piezas[i] = new Image()
     }
@@ -26,7 +26,6 @@ export function setupTablero(piezas,tablero) {
         tablero[i + j * 8] = 5 + 1
         j = 6
         tablero[i + j * 8] = 4 + 1
-
     }
 
     tablero[0] = 1 + 1;
