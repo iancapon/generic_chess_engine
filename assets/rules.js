@@ -89,6 +89,7 @@ export default function validMove(px, py, x, y, piece, tablero, turn, checkcheck
         }
     }
     let validNum=0
+    
     for(let i=0;i<64;i++){
         if(valid[i]>0){ validNum++ }
     }

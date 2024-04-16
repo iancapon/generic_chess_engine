@@ -32,7 +32,7 @@ const draw = function () {
 
     if (mano.turn == 1) { turno_de.textContent = "Turno de: Blancas" }
     if (mano.turn == 0) { turno_de.textContent = "Turno de: Negras" }
-    let checkmate=0
+    let checkmate=1
     /*
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
