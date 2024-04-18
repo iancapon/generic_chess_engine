@@ -1,6 +1,6 @@
 export default class cursor {
 
-    constructor(x, y, sqrSize,turno) {
+    constructor(x, y, sqrSize) {
         this.x = x
         this.y = y
         this.prevX = x
@@ -11,16 +11,15 @@ export default class cursor {
         this.piece = 0;
         this.prevPiece = 0
         this.hand = 0;
-        this.turno = turno
     }
 
 
-    click(array) {
+    click(array,turno) {
         let success=false
         this.x = this.truex
         this.y = this.truey
         this.piece = array[this.x + this.y * 8];
-        if (this.hand == 0 && this.piece != 0 && this.turno == this.piece % 2) {
+        if (this.hand == 0 && this.piece != 0 && turno == this.piece % 2) {
             this.hand = 2;
             this.prevPiece = this.piece;
             this.prevX = this.x;

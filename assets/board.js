@@ -1,38 +1,58 @@
-import { setupTablero } from "./setups.js"
 export class board {
     constructor() {
         this.tablero = []
         this.validArray = []
-        this.moved=[]
+        this.moved = []
         this.turno = 1
-        setupTablero(this.tablero)
         for (let i = 0; i < 64; i++) {
-            this.moved[i]=0
+            this.moved[i] = 0
             let valid = []
             for (let j = 0; j < 64; j++) { valid[j] = 0 }
             this.validArray[i] = valid
         }
         this.movesLeft = 100
     }
+
+    copiarBoard(nuevo){/////////////para copiar los elementos del objeto board
+        nuevo.turno=this.turno
+        for(let i=0;i<64;i++){
+            nuevo.tablero[i]=this.tablero
+            nuevo.moved[i]=this.moved
+        }
+        nuevo.movimientosTotales()
+    }
+
+    movimientosTotales() {///////////calcula todos los movimientos totales y los pone en arreglos
+        let vc = 0
+        for (let i = 0; i < 8; i++) {
+            for (let j = 0; j < 8; j++) {
+                if (this.tablero[i + j * 8] % 2 == this.turno % 2 && this.tablero[i + j * 8] != 0) {
+                    let pos = [i, j]
+                    vc += this.movimientosPosibles(this.tablero, pos, this.validArray[i + j * 8])
+                }
+            }
+        }
+        this.movesLeft = vc
+    }
+
     /////0:no avanzar | 1:avanzar | 2:comer(normal) | 3:rey | 4:comer al paso | 5:enrocar
-    moverPieza(pos, nextPos) {
-        let sucess = false
+    moverPieza(pos, nextPos) {////////si el movimiento se encuentra en su arreglo valid, lo ejecuta
+        let sucess = 0
         let x = pos[0]
         let y = pos[1]
         let piece = this.tablero[x + y * 8]
         let valid = this.validArray[x + y * 8]
         let nx = nextPos[0]
         let ny = nextPos[1]
-        if (valid[nx + ny * 8] != 0 && valid[nx + ny * 8] != 3 && piece % 2 == this.turno) {
+        if (piece!=0 && piece%2==this.turno && valid[nx + ny * 8] != 0 && valid[nx + ny * 8] != 3 && piece % 2 == this.turno) {
             this.tablero[x + y * 8] = 0
             this.tablero[nx + ny * 8] = piece
-            this.moved[x+y*8]++
-            this.moved[nx+ny*8]++
-            sucess = true
+            this.moved[x + y * 8]++
+            this.moved[nx + ny * 8]++
             if (valid[nx + ny * 8] == 4 || valid[nx + ny * 8] == 5) {/////enroque, en passant
                 if (valid[nx + ny * 8] == 4) {
                     this.tablero[nx + y * 8] = 0
-                    this.moved[nx+y*8]++
+                    this.moved[nx + y * 8]++
                 }
                 if (valid[nx + ny * 8] == 5) {
                     let torre = this.tablero[0 + 7 * 8 * this.turno]
@@ -53,15 +73,11 @@ export class board {
             if (piece == 6 - this.turno % 2 && (ny == 0 || ny == 7)) {//peon llega al final
                 this.tablero[nx + ny * 8] = 4 - this.turno % 2
             }
-
+            sucess = valid[nx + ny * 8]
             if (this.turno == 1) { this.turno = 2; }
             if (this.turno == 0) { this.turno = 1; }
             if (this.turno == 2) { this.turno = 0; }
             this.movimientosTotales()
-        }
-        else{
-            const audio = new Audio('assets/sounds/error.mp3');
-            if (audio != null ) { audio.play() }
         }
         return sucess
     }
@@ -190,7 +206,7 @@ export class board {
         }
         if (!check) {
             for (let i = 0; i < 64; i++) { valid[i] = 0 }
-            this.movimientoPeon(tablero,valid,pos[0], pos[1], team)
+            this.movimientoPeon(tablero, valid, pos[0], pos[1], team)
             for (let i = 0; i < 64; i++) {
                 if (valid[i] != 0 && (tablero[i] == 5 + team)) {//peon
                     check = true
@@ -214,61 +230,20 @@ export class board {
         return check
     }
 
-    movimientosTotales() {
-        let vc = 0
-        for (let i = 0; i < 8; i++) {
-            for (let j = 0; j < 8; j++) {
-                if (this.tablero[i + j * 8] % 2 == this.turno % 2 && this.tablero[i + j * 8] != 0) {
-                    let pos = [i, j]
-                    vc += this.movimientosPosibles(this.tablero, pos, this.validArray[i + j * 8])
-                }
-            }
-        }
-        //console.log("Movimientos posibles totales: " + vc)
-        this.movesLeft = vc
-    }
-
     peon(tablero, pos, valid) {
         let px = pos[0]
         let py = pos[1]
-        let piece=tablero[px + py * 8]
+        let piece = tablero[px + py * 8]
         let turn = piece % 2
         let dir = (1 - 2 * turn)
         let vc = 0
 
-        vc+=this.movimientoPeon(tablero,valid,px,py,turn)
+        vc += this.movimientoPeon(tablero, valid, px, py, turn)
         /////////////////////// COMER AL PASO
-        
         if (this.inboundsCheck(px - 1, py + dir) && tablero[px - 1 + (py) * 8] == 5 + turn && tablero[px - 1 + (py + dir) * 8] == 0) {
             vc += this.inbounds(valid, px - 1, py + dir);
             valid[(px - 1) + 8 * (py + dir)] = 4
             //////
-            
-                let nextTablero = []
-                let kingPos = []
-                for (let j = 0; j < 8; j++) {
-                    for (let k = 0; k < 8; k++) {
-                        nextTablero[j + k * 8] = tablero[j + k * 8]
-                        if (tablero[j + k * 8] == 8 - turn) { kingPos = [j, k] }
-                    }
-                }
-                nextTablero[px + py * 8] = 0
-                nextTablero[px - 1 + (py ) * 8] = 0
-                nextTablero[(px - 1) + 8 * (py + dir)] = piece
-
-                if (this.jaque(nextTablero, kingPos)) {/////si es verdadero: valid[i]=0 
-                    valid[(px - 1) + 8 * (py + dir)] = 0
-                    vc--
-                    console.log("situacion 1")
-                }
-                
-            ///////
-        }
-        if (this.inboundsCheck(px + 1, py + dir) && tablero[px + 1 + (py) * 8] == 5 + turn && tablero[px + 1 + (py + dir) * 8] == 0) {
-            vc += this.inbounds(valid, px + 1, py + dir);
-            valid[(px + 1) + 8 * (py + dir)] = 4
-            //////
-            
             let nextTablero = []
             let kingPos = []
             for (let j = 0; j < 8; j++) {
@@ -278,7 +253,30 @@ export class board {
                 }
             }
             nextTablero[px + py * 8] = 0
-            nextTablero[px + 1 + (py ) * 8] = 0
+            nextTablero[px - 1 + (py) * 8] = 0
+            nextTablero[(px - 1) + 8 * (py + dir)] = piece
+
+            if (this.jaque(nextTablero, kingPos)) {/////si es verdadero: valid[i]=0 
+                valid[(px - 1) + 8 * (py + dir)] = 0
+                vc--
+                console.log("situacion 1")
+            }
+            ///////
+        }
+        if (this.inboundsCheck(px + 1, py + dir) && tablero[px + 1 + (py) * 8] == 5 + turn && tablero[px + 1 + (py + dir) * 8] == 0) {
+            vc += this.inbounds(valid, px + 1, py + dir);
+            valid[(px + 1) + 8 * (py + dir)] = 4
+            //////
+            let nextTablero = []
+            let kingPos = []
+            for (let j = 0; j < 8; j++) {
+                for (let k = 0; k < 8; k++) {
+                    nextTablero[j + k * 8] = tablero[j + k * 8]
+                    if (tablero[j + k * 8] == 8 - turn) { kingPos = [j, k] }
+                }
+            }
+            nextTablero[px + py * 8] = 0
+            nextTablero[px + 1 + (py) * 8] = 0
             nextTablero[(px + 1) + 8 * (py + dir)] = piece
 
             if (this.jaque(nextTablero, kingPos)) {/////si es verdadero: valid[i]=0 
@@ -286,11 +284,8 @@ export class board {
                 vc--
                 console.log("situacion 2")
             }
-            
-        ///////
+            ///////
         }
-        
-
         return vc
     }
 
@@ -330,8 +325,8 @@ export class board {
         vc += this.inbounds(valid, px + 1, py + 1);
 
         ////////////////////enroque
-        if (tablero[4 + 8 * 7 * turn] == 8 - turn && this.moved[4 + 8 * 7 * turn]==0) {////rey
-            if (tablero[0 + 8 * 7 * turn] == 2 - turn && this.moved[0 + 8 * 7 * turn]==0) {//torre izquierda
+        if (tablero[4 + 8 * 7 * turn] == 8 - turn && this.moved[4 + 8 * 7 * turn] == 0) {////rey
+            if (tablero[0 + 8 * 7 * turn] == 2 - turn && this.moved[0 + 8 * 7 * turn] == 0) {//torre izquierda
                 if (tablero[1 + 8 * 7 * turn] == 0 && tablero[2 + 8 * 7 * turn] == 0 && tablero[3 + 8 * 7 * turn] == 0) {// si está vacio
                     /////////
                     let ok = 0
@@ -345,7 +340,7 @@ export class board {
                             }
                         }
                         nextTablero[4 + 8 * 7 * turn] = 0
-                        let i = 4 + 8 * 7 * turn -(n+1)
+                        let i = 4 + 8 * 7 * turn - (n + 1)
                         nextTablero[i] = piece
                         if (piece == 8 - turn) {
                             this.getPos(i, kingPos)
@@ -363,7 +358,7 @@ export class board {
                 }
 
             }
-            if (tablero[7 + 8 * 7 * turn] == 2 - turn && this.moved[7 + 8 * 7 * turn]==0) {//torre derecha
+            if (tablero[7 + 8 * 7 * turn] == 2 - turn && this.moved[7 + 8 * 7 * turn] == 0) {//torre derecha
                 if (tablero[6 + 8 * 7 * turn] == 0 && tablero[5 + 8 * 7 * turn] == 0) {// si está vacio
                     /////////
                     let ok = 0
@@ -377,7 +372,7 @@ export class board {
                             }
                         }
                         nextTablero[4 + 8 * 7 * turn] = 0
-                        let i = 4 + 8 * 7 * turn +(n+1)
+                        let i = 4 + 8 * 7 * turn + (n + 1)
                         nextTablero[i] = piece
                         if (piece == 8 - turn) {
                             this.getPos(i, kingPos)
@@ -425,7 +420,7 @@ export class board {
         return vc//[valid, 0]
     }
 
-    movimientoPeon(tablero, valid, px, py, turn){
+    movimientoPeon(tablero, valid, px, py, turn) {
         let dir = (1 - 2 * turn)
         let st = 6
         if (dir > 0) { st = 1 }
@@ -586,7 +581,6 @@ export class board {
         return vc
     }
 
-
     //////////////
     inboundsCheck(x, y) {
         let ret = false;
@@ -605,5 +599,4 @@ export class board {
         }
         return vc
     }
-
 }
