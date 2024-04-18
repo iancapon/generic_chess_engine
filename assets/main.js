@@ -17,34 +17,24 @@ let jugadas= document.getElementById("sheet")
 const setup = function () {
     setupPiezas(piezas)
     setupTablero(juego.tablero)
+    /*
+    for(let i=0;i<64;i++){juego.tablero[i]=0}
+    juego.tablero[20]=8
+    juego.tablero[30]=7
+    juego.tablero[38]=3
+    */
     juego.movimientosTotales()
 }
 
 
 const draw = function () {
     drawBoard('white', 'pink', c, juego.tablero, piezas)
-    if(juego.turno==1){
+    if(turno==1){
         canvas.addEventListener("click", manejarClic)
         canvas.addEventListener("mousemove", onMouseMove)
     }
-    if(juego.turno==0){
-        let piece=[Math.floor(Math.random()*8) , Math.floor(Math.random()*8)]
-        let move=[Math.floor(Math.random()*8) , Math.floor(Math.random()*8)]
-        let avanza = juego.moverPieza(piece, move)
-        let count=0
-            while((avanza==0 || avanza==3) && count <10000){
-                piece=[Math.floor(Math.random()*8) , Math.floor(Math.random()*8)]
-                move=[Math.floor(Math.random()*8) , Math.floor(Math.random()*8)]
-                avanza = juego.moverPieza(piece, move)
-                count++
-            }
-            turno = juego.turno
-            console.log("El bot probó "+count+" veces.")
-
-            let pieza=juego.getPieceFromXY(move[0],move[1])
-            let movimiento=translatePiece(piece,pieza,move)
-
-            jugadas.innerHTML +="<br>"+(piece[0]+":"+piece[1]+" - "+movimiento+" -> "+move[0]+":"+move[1])
+    if(turno==0){
+        bot()
     }
     if (mano.hand == 1) {
         drawPossible('white', 'pink', c, juego.tablero, piezas, juego.validArray,[mano.x,mano.y])
@@ -72,6 +62,51 @@ const draw = function () {
     
 }
 
+function bot2(){
+    let array=[]
+    let escape=false
+    for(let i=0;i<8;i++){
+        for(let j=0;j<8;j++){
+            let piece=juego.getPieceFromXY(i,j)
+            if(piece%2==turno && piece!=0){
+                array.concat=[piece,i,j]
+            }
+        }
+    }
+    for(let i=0;i<array.length;i++){
+        let valid=juego.getValidArrayFromXY(array[i][1],array[i][2])
+        for(let j=0;j<64;j++){
+            if(valid[j]>1 && valid[j]!=3 ){
+                let prev=[]
+                let next=[array[i][0],array[i][1]]
+                juego.getPos(j,prev)
+                juego.moverPieza(prev, next)
+                escape=true
+                break
+            }
+        }
+    }
+}
+
+function bot(){
+    let piece=[Math.floor(Math.random()*8) , Math.floor(Math.random()*8)]
+    let move=[Math.floor(Math.random()*8) , Math.floor(Math.random()*8)]
+    let avanza = juego.moverPieza(piece, move)
+    let count=0
+        while((avanza==0 || avanza==3) && count <10000){
+            piece=[Math.floor(Math.random()*8) , Math.floor(Math.random()*8)]
+            move=[Math.floor(Math.random()*8) , Math.floor(Math.random()*8)]
+            avanza = juego.moverPieza(piece, move)
+            count++
+        }
+        turno = juego.turno
+        console.log("El bot probó "+count+" veces.")
+
+        let pieza=juego.getPieceFromXY(move[0],move[1])
+        let movimiento=translatePiece(piece,pieza,move)
+
+        jugadas.innerHTML +="<br>"+(piece[0]+":"+piece[1]+" - "+movimiento+" -> "+move[0]+":"+move[1])
+}
 
 let clicActivo = true;
 function manejarClic() {

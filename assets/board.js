@@ -31,6 +31,8 @@ export class board {
         let vc = 0
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
+                let v=this.validArray[i+j*8]
+                for(let n=0;n<64;n++){v[n]=0}
                 if (this.tablero[i + j * 8] % 2 == this.turno % 2 && this.tablero[i + j * 8] != 0) {
                     let pos = [i, j]
                     vc += this.movimientosPosibles(this.tablero, pos, this.validArray[i + j * 8])
@@ -94,7 +96,7 @@ export class board {
         let turn = piece % 2
         let ret = 0
         if (piece != 0) {
-            for (let i = 0; i < 64; i++) { valid[i] = 0 }
+            //for (let i = 0; i < 64; i++) { valid[i] = 0 }
             switch (piece) {
                 case 1:
                     ret += this.torre(tablero, pos, valid)
@@ -231,6 +233,18 @@ export class board {
                 }
             }
         }
+        if (!check) {
+            for (let i = 0; i < 64; i++) { valid[i] = 0 }
+            this.movimientoRey(tablero,valid,pos[0],pos[1],team)
+            for (let i = 0; i < 64; i++) {
+                if (valid[i] != 0 && (tablero[i] == 7 + team)) {//caballo
+                    check = true
+                    //console.log("jaque? caballo: "+check)
+                    break
+                }
+            }
+        }
+        
         //console.log("jaque?: "+check)
         return check
     }
@@ -320,14 +334,7 @@ export class board {
         let turn = piece % 2
         let vc = 0
 
-        vc += this.inbounds(valid, px, py - 1);
-        vc += this.inbounds(valid, px - 1, py - 1);
-        vc += this.inbounds(valid, px + 1, py - 1);
-        vc += this.inbounds(valid, px - 1, py);
-        vc += this.inbounds(valid, px + 1, py);
-        vc += this.inbounds(valid, px, py + 1);
-        vc += this.inbounds(valid, px - 1, py + 1);
-        vc += this.inbounds(valid, px + 1, py + 1);
+        vc+=this.movimientoRey(tablero,valid,px,py,turn)
 
         ////////////////////enroque
         if (tablero[4 + 8 * 7 * turn] == 8 - turn && this.moved[4 + 8 * 7 * turn] == 0) {////rey
@@ -396,6 +403,19 @@ export class board {
 
             }
         }
+        return vc
+    }
+
+    movimientoRey(tablero,valid,px,py,team){
+        let vc=0
+        vc += this.inbounds(valid, px, py - 1);
+        vc += this.inbounds(valid, px - 1, py - 1);
+        vc += this.inbounds(valid, px + 1, py - 1);
+        vc += this.inbounds(valid, px - 1, py);
+        vc += this.inbounds(valid, px + 1, py);
+        vc += this.inbounds(valid, px, py + 1);
+        vc += this.inbounds(valid, px - 1, py + 1);
+        vc += this.inbounds(valid, px + 1, py + 1);
         return vc
     }
     alfil(tablero, pos, valid) {
