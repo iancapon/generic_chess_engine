@@ -47,7 +47,7 @@ const draw = function () {
             jugadas.innerHTML +="<br>"+(piece[0]+":"+piece[1]+" - "+movimiento+" -> "+move[0]+":"+move[1])
     }
     if (mano.hand == 1) {
-        drawPossible('white', 'pink', c, juego.tablero, piezas, juego.getValidArrayFromXY(mano.x,mano.y))
+        drawPossible('white', 'pink', c, juego.tablero, piezas, juego.validArray,[mano.x,mano.y])
     }
     if (juego.movesLeft > 0) {
         if (turno == 1) {
