@@ -41,13 +41,13 @@ const draw = function () {
             turno = juego.turno
             console.log("El bot probó "+count+" veces.")
 
-            let pieza=juego.tablero[move[0]+8*move[1]]
+            let pieza=juego.getPieceFromXY(move[0],move[1])
             let movimiento=translatePiece(piece,pieza,move)
 
             jugadas.innerHTML +="<br>"+(piece[0]+":"+piece[1]+" - "+movimiento+" -> "+move[0]+":"+move[1])
     }
     if (mano.hand == 1) {
-        drawPossible('white', 'pink', c, juego.tablero, piezas, juego.validArray, [mano.x, mano.y])
+        drawPossible('white', 'pink', c, juego.tablero, piezas, juego.getValidArrayFromXY(mano.x,mano.y))
     }
     if (juego.movesLeft > 0) {
         if (turno == 1) {
@@ -85,7 +85,7 @@ function manejarClic() {
                 if (audio != null ) { audio.play() }
                 turno = juego.turno
 
-                let movimiento=juego.tablero[mano.x+8*mano.y]
+                let movimiento=juego.getPieceFromXY(mano.x,mano.y)
                 let piece=[mano.prevX, mano.prevY]
                 let move=[mano.x, mano.y]
                 movimiento=translatePiece(piece,movimiento,move)

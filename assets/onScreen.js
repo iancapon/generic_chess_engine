@@ -28,8 +28,8 @@ function insertarImagen(x, y, size, bgcolor, c, tablero, piezas) {
     }
 }
 
-export function drawPossible(white, black, c, tablero, piezas, validArray,pos) {////le paso el valid<arr> de la pieza que quiero ver
-    let valid=validArray[pos[0]+8*pos[1]]
+export function drawPossible(white, black, c, tablero, piezas, valid) {////le paso el valid<arr> de la pieza que quiero ver
+    //let valid=validArray[pos[0]+8*pos[1]]
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
             if (valid[i + j * 8] > 0) {

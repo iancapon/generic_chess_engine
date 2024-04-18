@@ -12,7 +12,12 @@ export class board {
         }
         this.movesLeft = 100
     }
-
+    getPieceFromXY(x,y){
+        return this.tablero[x+y*8]
+    }
+    getValidArrayFromXY(x,y){
+        return this.validArray[+y*8]
+    }
     copiarBoard(nuevo){/////////////para copiar los elementos del objeto board
         nuevo.turno=this.turno
         for(let i=0;i<64;i++){
